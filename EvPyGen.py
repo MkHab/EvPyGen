@@ -15,6 +15,6 @@ class EvGen:
 
   @classmethod
   def _EvResolve(cls: type[Self], param: Any) -> Any:
-    if param in cls.__args__:
-      return cls._EvResolve(cls.__args__[param])
+    while param in cls.__args__:
+      param = cls.__args__[param]
     return param

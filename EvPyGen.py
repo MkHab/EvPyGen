@@ -23,32 +23,34 @@ class EvAlias(GenericAlias): # Для обратной совместимост�
     return obj
   
   def __getattr__(self, name: str) -> Any:
-    # Вывоодим предупреждение, так как без объекта нельзя задать __orig_class__
+    # Вывоодим предупреждение, так как без объекта не понятно как задать __orig_class__
     warnings.warn(f"Getting attributes of {format_class_name(EvAlias)} not recommended", RuntimeWarning, 2)
     return self.__origin__.__getattr__(name) # Делигируем получение аттрибута классу
 
   def _EvParams(self: Self) -> tuple[Any, ...]:
-    return self.__origin__._EvParams()
+    return self.__origin__._EvParams() # Запрашиваем список параметров у класса
 
   def _EvArgs(self: Self) -> tuple[Any, ...]:
-    return self.__args__
+    return self.__args__ # Возвращаем переданные параметры
 
   def _EvOrigin(self: Self) -> type[EvGen]:
-    return self.__origin__._EvOrigin()
+    return self.__origin__._EvOrigin() # Запрашиваем исходный класс
 
 class EvGen(Generic): # Для обратной совместимости с typing
   @classmethod
   def __class_getitem__(cls: type[EvGen], args: Any) -> EvAlias:
     return EvAlias(cls, args) # возвращаем вместо родного GenericAlias дочерний класс
 
-  def _EvParams(self: Self) -> tuple[Any, ...]:
-    return getattr(self, "__parameters__", ())
+  @classmethod
+  def _EvParams(cls: type[Self]) -> tuple[Any, ...]: # Список параметров известен на этапе класса
+    return getattr(cls, "__parameters__", ()) # Возвращаем список параметров
 
-  def _EvArgs(self: Self) -> tuple[Any, ...] | None:
+  def _EvArgs(self: Self) -> tuple[Any, ...] | None: # __orig_class__ может быть получен только от объекта
     origin: EvAlias | None = getattr(self, "__orig_class__", None)
     if origin is None:
       return None
-    return origin._EvArgs()
+    return origin._EvArgs() # Возвращаем переданные параметры
 
-  def _EvOrigin(self: Self) -> type[Self]:
-    return type(self)
+  @classmethod
+  def _EvOrigin(cls: type[Self]) -> type[Self]: # Исходный класс известен на этапе класса
+    return cls # Возвращаем сам класс

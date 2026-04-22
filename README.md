@@ -100,6 +100,12 @@ class TemplateClassB[TP1, TP2, TP3](TemplateClassA[TP1 | TP2, str]):
   TemplateClassA.TP1 = int | float
   TemplateClassA.TP2 = <class 'str'>
   ```
+* Задание одинаковых значений приводит не к созданию новой сущности, а к
+  возврату уже созданной, то есть
+  `TemplateClassA[int, float] == TemplateClassB[int, float]` возвращает
+  `True`, а
+  `TemplateClassA[int, float] == TemplateClassB[int, str]` вернет
+  `False`.
 
 ## TODO
 - [ ] Реализовать поддержку основных типов параметров шаблонов:
@@ -111,3 +117,5 @@ class TemplateClassB[TP1, TP2, TP3](TemplateClassA[TP1 | TP2, str]):
 - [x] Реализовать разрешение &laquo;составных типов&raquo; (объединений, опциональных, т.д.),
       определяемых `typing` (2026.04.22).
 - [ ] Реализовать разрешение вложенных `EvGen`.
+- [x] Реализовать кеширование шаблонов таким образом, чтобы одинаковые параметры приводили
+      к использованию одного и того же экземпляра (2026.04.22).

@@ -2,6 +2,7 @@ from typing import Any, Self, TypeVar, get_origin, get_args
 
 class EvGen:
   __args__: dict[TypeVar, Any] = {}
+  __cache__: dict[tuple[type[EvGen], tuple[Any, ...]], type[EvGen]] = {}
 
   @classmethod
   def __class_getitem__(cls: type[Self], args: Any) -> type[EvGen]:
@@ -9,10 +10,13 @@ class EvGen:
       args = (args,)
     if len(args) != len(cls.__parameters__):
       raise ValueError("Number of parameters does not match template")
+    if (cls, args) in EvGen.__cache__:
+      return EvGen.__cache__[cls, args]
     class SubEvGen(cls):
       __args__: dict[TypeVar, Any] = {**cls.__args__, **dict(zip(cls.__parameters__, args))}
     SubEvGen.    __name__ = cls.    __name__ + "[...]"
     SubEvGen.__qualname__ = cls.__qualname__ + "[...]"
+    EvGen.__cache__[cls, args] = SubEvGen
     return SubEvGen
 
   @classmethod

@@ -15,9 +15,9 @@ class EvGen:
 
   @classmethod
   def _EvResolve(cls: type[Self], param: Any) -> Any:
-    if param not in cls.__args__:
-      return param
-    param = cls.__args__[param]
-    if (origin := get_origin(param)) is not None:
-      return origin[tuple(cls._EvResolve(a) for a in get_args(param))]
-    return cls._EvResolve(param)
+    if (origin := get_origin(param)) is not None:                      # Если тип является GenericAlias, то
+                                                                       # сохраняем его тип (совместимость с typing)
+      return origin[tuple(cls._EvResolve(a) for a in get_args(param))] # Разрешаем параметры
+    if param not in cls.__args__:                                      # Проверяем, был ли параметр задан
+      return cls._EvResolve(cls.__args__[param])                       # Рекуррентно разрешаем тип
+    return param                                                       # Параметр не задан или отсутствует

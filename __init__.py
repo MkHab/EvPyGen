@@ -6,17 +6,20 @@ class EvTemplate:
 
   @classmethod
   def __class_getitem__(cls: type[Self], args: Any) -> type[EvTemplate]:
-    if not isinstance(args, tuple):
+    if not isinstance(args, tuple): # Если параметр 1, то сделать его кортежем
       args = (args,)
-    if len(args) != len(cls.__parameters__):
+    if len(args) != len(cls.__parameters__): # проверка количества параметров
       raise ValueError("Number of parameters does not match template")
-    if (cls, args) in EvTemplate.__cache__:
-      return EvTemplate.__cache__[cls, args]
+    if (cls, args) in EvTemplate.__cache__:  # класс уже был создан
+      return EvTemplate.__cache__[cls, args] # возвращаем уже созданный класс, а не создаем новый
     class EvTemplateSpecification(cls):
-      __args__: dict[TypeVar, Any] = {**cls.__args__, **dict(zip(cls.__parameters__, args))}
-    EvTemplateSpecification.    __name__ = cls.    __name__ + "[...]"
-    EvTemplateSpecification.__qualname__ = cls.__qualname__ + "[...]"
-    EvTemplate.__cache__[cls, args] = EvTemplateSpecification
+      __args__: dict[TypeVar, Any] = {        # Задаем __args__, чтобы они были доступны из конструктора
+        **cls.__args__,                       # Наследуем параметры родителей
+        **dict(zip(cls.__parameters__, args)) # Добавляем текущие параметры
+      }
+    EvTemplateSpecification.    __name__ = cls.    __name__ + "[...]" # Явное задание имени спецификации
+    EvTemplateSpecification.__qualname__ = cls.__qualname__ + "[...]" # Явное задание полного имени спецификации
+    EvTemplate.__cache__[cls, args] = EvTemplateSpecification         # кэшируем класс
     return EvTemplateSpecification
 
   @classmethod

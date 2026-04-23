@@ -1,23 +1,23 @@
 from typing import Any, Self, TypeVar, get_origin, get_args
 
-class EvGen:
+class EvTemplate:
   __args__: dict[TypeVar, Any] = {}
-  __cache__: dict[tuple[type[EvGen], tuple[Any, ...]], type[EvGen]] = {}
+  __cache__: dict[tuple[type[EvTemplate], tuple[Any, ...]], type[EvTemplate]] = {}
 
   @classmethod
-  def __class_getitem__(cls: type[Self], args: Any) -> type[EvGen]:
+  def __class_getitem__(cls: type[Self], args: Any) -> type[EvTemplate]:
     if not isinstance(args, tuple):
       args = (args,)
     if len(args) != len(cls.__parameters__):
       raise ValueError("Number of parameters does not match template")
-    if (cls, args) in EvGen.__cache__:
-      return EvGen.__cache__[cls, args]
-    class SubEvGen(cls):
+    if (cls, args) in EvTemplate.__cache__:
+      return EvTemplate.__cache__[cls, args]
+    class EvTemplateSpecification(cls):
       __args__: dict[TypeVar, Any] = {**cls.__args__, **dict(zip(cls.__parameters__, args))}
-    SubEvGen.    __name__ = cls.    __name__ + "[...]"
-    SubEvGen.__qualname__ = cls.__qualname__ + "[...]"
-    EvGen.__cache__[cls, args] = SubEvGen
-    return SubEvGen
+    EvTemplateSpecification.    __name__ = cls.    __name__ + "[...]"
+    EvTemplateSpecification.__qualname__ = cls.__qualname__ + "[...]"
+    EvTemplate.__cache__[cls, args] = EvTemplateSpecification
+    return EvTemplateSpecification
 
   @classmethod
   def _EvResolve(cls: type[Self], param: Any) -> Any:

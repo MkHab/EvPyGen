@@ -1,4 +1,4 @@
-# EvPyGen
+# CppLikePyTemplate
 
 Данный проект разработан для реализации обобщенного программирования,
 аналогичного принятому в C++. Он призван решить следующие проблемы:
@@ -50,9 +50,9 @@
 основные возможности такого подхода:
 ```python
 from typing import Self
-from EvPyGen import EvGen
+from CppLikePyTemplate import EvTemplate
 
-class TemplateClassA[TP1, TP2](EvGen):
+class TemplateClassA[TP1, TP2](EvTemplate):
     @classmethod
     def printResolved(cls: type[Self]) -> None:
         print(f"{__class__.__qualname__}.TP1 = {cls._EvResolve(TP1)}")
